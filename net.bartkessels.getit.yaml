@@ -1,0 +1,33 @@
+app-id: net.bartkessels.getit
+
+runtime: org.kde.Platform
+runtime-version: '5.15-22.08'
+sdk: org.kde.Sdk
+
+command: getit
+
+finish-args:
+  - --socket=x11
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --share=network
+
+modules:
+  - name: boost
+    buildsystem: simple
+    build-commands:
+      - ./bootstrap.sh --prefix=/app --with-libraries=random,system,thread,filesystem,chrono,atomic,date_time,regex
+      - ./b2 headers
+      - ./b2 -j$FLATPAK_BUILDER_N_JOBS install variant=release cxxstd=17 --layout=system
+    sources:
+      - type: archive
+        url: https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0_rc1.tar.gz
+        sha256: 205666dea9f6a7cfed87c7a6dfbeb52a2c1b9de55712c9c1a87735d7181452b6
+  - name: getit
+    buildsystem: cmake-ninja
+    sources:
+      - type: git
+        tag: v5.0.0
+        commit: 20d64189fa88a70d566462c5d0511cc67efea268
+        url: https://github.com/bartkessels/getit
